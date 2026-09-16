@@ -1,0 +1,807 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Scholarship and Fee Management</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background-color: #f4f6f9;
+        }
+
+        header {
+            background-color: #243b55;
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .container {
+            padding: 30px;
+            max-width: 1000px;
+            margin: auto;
+        }
+
+        .card {
+            background-color: white;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px #cccccc;
+        }
+
+        input {
+            padding: 10px;
+            margin: 8px 5px 8px 0;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+        }
+
+        button {
+            background-color: #243b55;
+            color: white;
+            padding: 10px 18px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #1a2d42;
+        }
+
+        .delete-btn {
+            background-color: #c0392b;
+        }
+
+        .delete-btn:hover {
+            background-color: #922b21;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #243b55;
+            color: white;
+        }
+
+        .form-row {
+            margin-bottom: 10px;
+        }
+
+        #studentForm {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            input {
+                width: 90%;
+            }
+
+            table {
+                font-size: 12px;
+            }
+        }
+        .dashboard {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.summary-card {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.summary-card h3 {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.summary-card p {
+    font-size: 28px;
+    font-weight: bold;
+    color: #2563eb;
+}
+
+@media (max-width: 800px) {
+    .dashboard {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.scholarship-summary {
+    cursor: pointer;
+}
+
+.scholarship-summary small {
+    color: #666;
+}
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Scholarship and Fee Management System</h1>
+        <p>Manage student scholarships and fee details</p>
+    </header>
+    <!-- Dashboard Summary -->
+<div class="dashboard">
+    <div class="summary-card">
+        <h3>Total Students</h3>
+        <p id="totalStudents">0</p>
+    </div>
+
+    <div class="summary-card scholarship-summary"
+     onclick="showScholarshipSummary()">
+    <h3>Scholarship Students</h3>
+    <p id="totalScholarshipStudents">0</p>
+    <small>Click to view details</small>
+</div>
+
+    <div class="summary-card">
+        <h3>Total Fee Records</h3>
+        <p id="totalFeeRecords">0</p>
+    </div>
+
+    <div class="summary-card">
+        <h3>Pending Payments</h3>
+        <p id="pendingPayments">0</p>
+    </div>
+</div>
+
+    <div class="container">
+
+        <div class="card">
+            <h2>Student Management</h2>
+
+            <p>Add, view, and delete student records.</p>
+
+            <button onclick="showStudentForm()">
+                Add Student
+            </button>
+        </div>
+
+        <div class="card" id="studentForm">
+
+            <h2>Add New Student</h2>
+
+            <form onsubmit="addStudent(event)">
+
+                <div class="form-row">
+                    <input
+                        type="text"
+                        id="studentId"
+                        placeholder="Student ID"
+                        required
+                    >
+
+                    <input
+                        type="text"
+                        id="studentName"
+                        placeholder="Student Name"
+                        required
+                    >
+                </div>
+
+                <div class="form-row">
+                    <input
+                        type="text"
+                        id="phone"
+                        placeholder="Phone Number"
+                        required
+                    >
+
+                    <input
+                        type="text"
+                        id="programId"
+                        placeholder="Program ID"
+                        required
+                    >
+                    <label for="scholarshipType">Scholarship Type:</label>
+
+                    <select id="scholarshipType" required>
+                        <option value="">Select Scholarship Type</option>
+                        <option value="No Scholarship">No Scholarship</option>
+                        <option value="Merit Scholarship">Merit Scholarship</option>
+                        <option value="Need-Based Scholarship">Need-Based Scholarship</option>
+                        <option value="Sports Scholarship">Sports Scholarship</option>
+                    </select> 
+                </div>
+
+                <button type="submit">
+                    Save Student
+                </button>
+
+                <button type="button" onclick="hideStudentForm()">
+                    Cancel
+                </button>
+
+            </form>
+        </div>
+
+        <div class="card">
+
+            <h2>Student Records</h2>
+            <input
+    type="text"
+    id="searchStudent"
+    placeholder="Search by student ID or name"
+    oninput="searchStudents()"
+>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Phone</th>
+                        <th>Program ID</th>
+                        <th>Scholarship Type</th>
+                        <th>Action</th>
+
+                    </tr>
+                </thead>
+
+                <tbody id="studentTableBody">
+                    <tr>
+                        <td colspan="7">
+                            No student records yet.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+    <!-- Scholarship Summary Details -->
+<div id="scholarshipSummaryDetails" class="card" style="display: none;">
+    <h2>Scholarship Student Details</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Scholarship Type</th>
+                <th>Number of Students</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <tr>
+                <td>Merit Scholarship</td>
+                <td id="meritCount">0</td>
+            </tr>
+
+            <tr>
+                <td>Need-Based Scholarship</td>
+                <td id="needBasedCount">0</td>
+            </tr>
+
+            <tr>
+                <td>Sports Scholarship</td>
+                <td id="sportsCount">0</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+    <div class="card">
+    <h2>Scholarship Management</h2>
+
+    <p>Manage scholarship information for students.</p>
+
+    <button onclick="showScholarshipMessage()">
+        View Scholarships
+    </button>
+
+    <p id="scholarshipMessage"></p>
+    <table id="scholarshipTable" style="display: none;">
+    <thead>
+        <tr>
+            <th>Scholarship ID</th>
+            <th>Scholarship Name</th>
+            <th>Eligibility</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        <tr>
+            <td>SCH001</td>
+            <td>Merit Scholarship</td>
+            <td>High academic performance</td>
+            <td>Available</td>
+        </tr>
+
+        <tr>
+            <td>SCH002</td>
+            <td>Need-Based Scholarship</td>
+            <td>Financial need</td>
+            <td>Available</td>
+        </tr>
+
+        <tr>
+            <td>SCH003</td>
+            <td>Sports Scholarship</td>
+            <td>Outstanding sports performance</td>
+            <td>Available</td>
+        </tr>
+    </tbody>
+</table>
+</div>
+<!-- Fee Management -->
+<div class="card">
+    <h2>Fee Management</h2>
+    <h3>Add Fee Record</h3>
+
+    <form id="feeForm" onsubmit="addFeeRecord(event)">
+        <label for="feeStudentId">Student ID:</label>
+        <input type="text" id="feeStudentId" required>
+
+        <label for="totalFee">Total Fee:</label>
+        <input type="number" id="totalFee" required>
+
+        <label for="scholarshipAmount">Scholarship Amount:</label>
+        <input type="number" id="scholarshipAmount" value="0" required>
+
+        <label for="paidFee">Paid Fee:</label>
+        <input type="number" id="paidFee" value="0" required>
+
+        <button type="submit">Add Fee Record</button>
+    </form>
+
+    <p>View student fee details.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Student ID</th>
+                <th>Total Fee</th>
+                <th>Scholarship</th>
+                <th>Paid Fee</th>
+                <th>Remaining Fee</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody id="feeTableBody">
+            <tr>
+                <td colspan="7">No fee records yet.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+    <script>
+
+
+        let students = [];
+        let feeRecords = [];
+        function showStudentForm() {
+            document.getElementById("studentForm").style.display = "block";
+        }
+
+        function hideStudentForm() {
+            document.getElementById("studentForm").style.display = "none";
+        }
+
+        function addStudent(event) {
+
+            event.preventDefault();
+
+            const student = {
+    id: document.getElementById("studentId").value.trim(),
+    name: document.getElementById("studentName").value,
+    phone: document.getElementById("phone").value,
+    programId: document.getElementById("programId").value,
+    scholarshipType: document.getElementById("scholarshipType").value
+};
+
+            students.push(student);
+
+            displayStudents();
+
+            document.querySelector("form").reset();
+
+            hideStudentForm();
+        }
+
+        function displayStudents() {
+
+            const tableBody = document.getElementById("studentTableBody");
+
+            tableBody.innerHTML = "";
+
+            if (students.length === 0) {
+
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6">
+                            No student records yet.
+                        </td>
+                    </tr>
+                `;
+
+                return;
+            }
+
+            students.forEach(function(student, index) {
+
+                const row = document.createElement("tr");
+
+                row.innerHTML = `
+                    <td>${student.id}</td>
+                    <td>${student.name}</td>
+                    <td>${student.phone}</td>
+                    <td>${student.programId}</td>
+                    <td>${student.scholarshipType || "No Scholarship"}</td>
+                    <td>
+                        <button onclick="editStudent(${index})">Edit</button>
+                        <button class="delete-btn" onclick="deleteStudent(${index})">
+                            Delete
+                        </button>
+                    </td>
+                `;
+
+                tableBody.appendChild(row);
+
+            });
+            updateDashboard();
+        }
+
+        function deleteStudent(index) {
+
+            students.splice(index, 1);
+
+            displayStudents();
+
+        }
+    function editStudent(index) {
+    const student = students[index];
+
+    const row = document.querySelectorAll("#studentTableBody tr")[index];
+
+   row.innerHTML = `
+    <td>${student.id}</td>
+
+    <td>
+        <input type="text" id="editName${index}" value="${student.name}">
+    </td>
+
+    <td>
+        <input type="text" id="editPhone${index}" value="${student.phone}">
+    </td>
+
+    <td>
+        <input type="text" id="editProgram${index}" value="${student.programId}">
+    </td>
+
+    <td>
+        <select id="editScholarship${index}">
+            <option value="No Scholarship"
+                ${student.scholarshipType === "No Scholarship" ? "selected" : ""}>
+                No Scholarship
+            </option>
+
+            <option value="Merit Scholarship"
+                ${student.scholarshipType === "Merit Scholarship" ? "selected" : ""}>
+                Merit Scholarship
+            </option>
+
+            <option value="Need-Based Scholarship"
+                ${student.scholarshipType === "Need-Based Scholarship" ? "selected" : ""}>
+                Need-Based Scholarship
+            </option>
+
+            <option value="Sports Scholarship"
+                ${student.scholarshipType === "Sports Scholarship" ? "selected" : ""}>
+                Sports Scholarship
+            </option>
+        </select>
+    </td>
+
+    <td>
+        <button onclick="saveEdit(${index})">Save</button>
+        <button class="delete-btn" onclick="displayStudents()">Cancel</button>
+    </td>
+`;
+}
+function saveEdit(index) {
+    const name = document.getElementById(`editName${index}`).value;
+    const phone = document.getElementById(`editPhone${index}`).value;
+    const programId = document.getElementById(`editProgram${index}`).value;
+    const scholarshipType =
+        document.getElementById(`editScholarship${index}`).value;
+
+    students[index].name = name;
+    students[index].phone = phone;
+    students[index].programId = programId;
+    students[index].scholarshipType = scholarshipType;
+
+    displayStudents();
+}
+function searchStudents() {
+    const searchText = document
+        .getElementById("searchStudent")
+        .value
+        .toLowerCase();
+
+    const filteredStudents = students.filter(student =>
+        student.id.toLowerCase().includes(searchText) ||
+        student.name.toLowerCase().includes(searchText)
+    );
+
+    const tableBody = document.getElementById("studentTableBody");
+
+    tableBody.innerHTML = "";
+
+    filteredStudents.forEach(student => {
+        const originalIndex = students.indexOf(student);
+
+        tableBody.innerHTML += `
+            <tr>
+                <td>${student.id}</td>
+                <td>${student.name}</td>
+                <td>${student.phone}</td>
+                <td>${student.programId}</td>
+                <td>${student.scholarshipType || "No Scholarship"}</td>
+                <td>
+                    <button onclick="editStudent(${originalIndex})">Edit</button>
+                    <button class="delete-btn" onclick="deleteStudent(${originalIndex})">
+                        Delete
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+}
+function showScholarshipMessage() {
+    document.getElementById("scholarshipMessage").textContent =
+        "Available scholarships:";
+
+    document.getElementById("scholarshipTable").style.display = "table";
+}
+function updateDashboard() {
+    document.getElementById("totalStudents").textContent = students.length;
+
+    document.getElementById("totalFeeRecords").textContent = students.length;
+
+    const pendingPayments = feeRecords.filter(function(record) {
+  return record.remainingFee > 0;
+}).length;
+
+document.getElementById("pendingPayments").textContent = pendingPayments;
+    const scholarshipStudents = students.filter(student =>
+        student.scholarshipType &&
+        student.scholarshipType !== "No Scholarship"
+    );
+
+    document.getElementById("totalScholarshipStudents").textContent =
+        scholarshipStudents.length;
+
+    document.getElementById("meritCount").textContent =
+        students.filter(student =>
+            student.scholarshipType === "Merit Scholarship"
+        ).length;
+
+    document.getElementById("needBasedCount").textContent =
+        students.filter(student =>
+            student.scholarshipType === "Need-Based Scholarship"
+        ).length;
+
+    document.getElementById("sportsCount").textContent =
+        students.filter(student =>
+            student.scholarshipType === "Sports Scholarship"
+        ).length;
+}
+function showScholarshipSummary() {
+  const details = document.getElementById("scholarshipSummaryDetails");
+
+  if (details.style.display === "none" || details.style.display === "") {
+    details.style.display = "block";
+
+    details.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  } else {
+    details.style.display = "none";
+  }
+}
+function addFeeRecord(event) {
+  event.preventDefault();
+
+  const studentId = document.getElementById("feeStudentId").value.trim();
+
+  const totalFee = Number(document.getElementById("totalFee").value);
+  const scholarshipAmount = Number(
+    document.getElementById("scholarshipAmount").value
+  );
+  const paidFee = Number(document.getElementById("paidFee").value);
+
+  // Check whether the student exists
+const studentExists = students.some(function(student) {
+  return String(student.id).trim() === studentId;
+});
+  if (!studentExists) {
+    alert("Error: This Student ID does not exist. Please add the student first.");
+    return;
+  }
+
+  // Validate fee values
+  if (totalFee < 0 || scholarshipAmount < 0 || paidFee < 0) {
+    alert("Fee amounts cannot be negative.");
+    return;
+  }
+
+  if (scholarshipAmount > totalFee) {
+    alert("Scholarship amount cannot be greater than the total fee.");
+    return;
+  }
+
+  const remainingFee = totalFee - scholarshipAmount - paidFee;
+
+  if (remainingFee < 0) {
+    alert("Paid fee and scholarship cannot be greater than the total fee.");
+    return;
+  }
+
+  const status = remainingFee === 0 ? "Paid" : "Pending";
+
+  const feeRecord = {
+    studentId: studentId,
+    totalFee: totalFee,
+    scholarshipAmount: scholarshipAmount,
+    paidFee: paidFee,
+    remainingFee: remainingFee,
+    status: status
+  };
+  const alreadyExists = feeRecords.some(function(record) {
+  return record.studentId === studentId;
+});
+
+if (alreadyExists) {
+  alert("A fee record already exists for this Student ID.");
+  return;
+}
+  feeRecords.push(feeRecord);
+
+  displayFeeRecords();
+  updateDashboard();
+
+  document.getElementById("feeForm").reset();
+
+  alert("Fee record added successfully!");
+}
+function displayFeeRecords() {
+  const tableBody = document.getElementById("feeTableBody");
+
+  tableBody.innerHTML = "";
+
+  if (feeRecords.length === 0) {
+    tableBody.innerHTML = `
+      <tr>
+        <td colspan="6">No fee records yet.</td>
+      </tr>
+    `;
+    return;
+  }
+
+  feeRecords.forEach((record, index) => {
+  const row = document.createElement("tr");
+
+    row.innerHTML = `
+        <td>${record.studentId}</td>
+        <td>₹${record.totalFee}</td>
+        <td>₹${record.scholarshipAmount}</td>
+        <td>₹${record.paidFee}</td>
+        <td>₹${record.remainingFee}</td>
+        <td>${record.status}</td>
+        <td>
+<button type="button" onclick="editFeeRecord(${index})">
+  Edit
+</button>        </td>
+        `;
+
+    tableBody.appendChild(row);
+  });
+}
+function editFeeRecord(index) {
+  const record = feeRecords[index];
+  const row = document.querySelectorAll("#feeTableBody tr")[index];
+
+  row.innerHTML = `
+    <td>${record.studentId}</td>
+
+    <td>
+      <input type="number" id="editTotalFee${index}" value="${record.totalFee}">
+    </td>
+
+    <td>
+      <input type="number" id="editScholarshipAmount${index}" value="${record.scholarshipAmount}">
+    </td>
+
+    <td>
+      <input type="number" id="editPaidFee${index}" value="${record.paidFee}">
+    </td>
+
+    <td>${record.remainingFee}</td>
+
+    <td>${record.status}</td>
+
+    <td>
+      <button type="button" onclick="saveFeeEdit(${index})">Save</button>
+      <button type="button" class="delete-btn" onclick="displayFeeRecords()">Cancel</button>
+    </td>
+  `;
+}
+function saveFeeEdit(index) {
+  const newTotalFee = Number(
+    document.getElementById(`editTotalFee${index}`).value
+  );
+
+  const newScholarshipAmount = Number(
+    document.getElementById(`editScholarshipAmount${index}`).value
+  );
+
+  const newPaidFee = Number(
+    document.getElementById(`editPaidFee${index}`).value
+  );
+
+  if (
+    newTotalFee < 0 ||
+    newScholarshipAmount < 0 ||
+    newPaidFee < 0
+  ) {
+    alert("Fee amounts cannot be negative.");
+    return;
+  }
+
+  if (newScholarshipAmount > newTotalFee) {
+    alert("Scholarship cannot be greater than the total fee.");
+    return;
+  }
+
+  const newRemainingFee =
+    newTotalFee - newScholarshipAmount - newPaidFee;
+
+  if (newRemainingFee < 0) {
+    alert("Paid fee and scholarship cannot exceed the total fee.");
+    return;
+  }
+
+  feeRecords[index].totalFee = newTotalFee;
+  feeRecords[index].scholarshipAmount = newScholarshipAmount;
+  feeRecords[index].paidFee = newPaidFee;
+  feeRecords[index].remainingFee = newRemainingFee;
+  feeRecords[index].status =
+    newRemainingFee === 0 ? "Paid" : "Pending";
+
+  displayFeeRecords();
+  updateDashboard();
+}
+    </script>
+
+</body>
+</html>
