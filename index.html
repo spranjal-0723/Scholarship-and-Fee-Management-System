@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -150,23 +149,26 @@
     <div class="summary-card">
         <h3>Total Students</h3>
         <p id="totalStudents">0</p>
+        <small id="applicationSummary">Approved: 0 | Pending: 0</small>
     </div>
 
     <div class="summary-card scholarship-summary"
      onclick="showScholarshipSummary()">
-    <h3>Scholarship Students</h3>
+    <h3>Scholarships</h3>
     <p id="totalScholarshipStudents">0</p>
-    <small>Click to view details</small>
+    <small id="scholarshipAmountSummary">Amount: ₹0</small>
 </div>
 
     <div class="summary-card">
-        <h3>Total Fee Records</h3>
+        <h3>Total Fees</h3>
         <p id="totalFeeRecords">0</p>
+        <small id="paidFeeSummary">Paid: ₹0</small>
     </div>
 
     <div class="summary-card">
-        <h3>Pending Payments</h3>
-        <p id="pendingPayments">0</p>
+        <h3>Outstanding Fees</h3>
+        <p id="pendingPayments">₹0</p>
+        <small>From API dashboard</small>
     </div>
 </div>
 
@@ -175,7 +177,7 @@
         <div class="card">
             <h2>Student Management</h2>
 
-            <p>Add, view, and delete student records.</p>
+            <p>Add and view student records.</p>
 
             <button onclick="showStudentForm()">
                 Add Student
@@ -218,15 +220,7 @@
                         placeholder="Program ID"
                         required
                     >
-                    <label for="scholarshipType">Scholarship Type:</label>
-
-                    <select id="scholarshipType" required>
-                        <option value="">Select Scholarship Type</option>
-                        <option value="No Scholarship">No Scholarship</option>
-                        <option value="Merit Scholarship">Merit Scholarship</option>
-                        <option value="Need-Based Scholarship">Need-Based Scholarship</option>
-                        <option value="Sports Scholarship">Sports Scholarship</option>
-                    </select> 
+                    <small>Scholarship information is managed through scholarship applications.</small>
                 </div>
 
                 <button type="submit">
@@ -256,7 +250,7 @@
                         <th>Student ID</th>
                         <th>Name</th>
                         <th>Phone</th>
-                        <th>Program ID</th>
+                        <th>Program</th>
                         <th>Scholarship Type</th>
                         <th>Action</th>
 
@@ -319,53 +313,76 @@
     <thead>
         <tr>
             <th>Scholarship ID</th>
-            <th>Scholarship Name</th>
-            <th>Eligibility</th>
-            <th>Status</th>
+            <th>Student ID</th>
+            <th>Student Name</th>
+            <th>Scholarship Type</th>
+            <th>Amount</th>
         </tr>
     </thead>
 
-    <tbody>
+    <tbody id="scholarshipTableBody">
         <tr>
-            <td>SCH001</td>
-            <td>Merit Scholarship</td>
-            <td>High academic performance</td>
-            <td>Available</td>
-        </tr>
-
-        <tr>
-            <td>SCH002</td>
-            <td>Need-Based Scholarship</td>
-            <td>Financial need</td>
-            <td>Available</td>
-        </tr>
-
-        <tr>
-            <td>SCH003</td>
-            <td>Sports Scholarship</td>
-            <td>Outstanding sports performance</td>
-            <td>Available</td>
+            <td colspan="5">No scholarship records yet.</td>
         </tr>
     </tbody>
 </table>
 </div>
+<!-- Application Management -->
+<div class="card">
+    <h2>Application Management</h2>
+    <p>Submit and manage scholarship applications.</p>
+
+    <form id="applicationForm" onsubmit="addApplication(event)">
+        <label for="applicationId">Application ID:</label>
+        <input type="text" id="applicationId" maxlength="10" readonly required>
+
+        <label for="applicationStudentId">Student ID:</label>
+        <input type="text" id="applicationStudentId" maxlength="10" required>
+
+        <label for="applicationDate">Application Date:</label>
+        <input type="date" id="applicationDate" required>
+
+        <button type="submit">Submit Application</button>
+    </form>
+
+    <p id="applicationMessage"></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Application ID</th>
+                <th>Student ID</th>
+                <th>Student Name</th>
+                <th>Application Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="applicationTableBody">
+            <tr>
+                <td colspan="6">No applications yet.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
 <!-- Fee Management -->
 <div class="card">
     <h2>Fee Management</h2>
     <h3>Add Fee Record</h3>
 
     <form id="feeForm" onsubmit="addFeeRecord(event)">
+        <label for="feeId">Fee ID:</label>
+        <input type="text" id="feeId" maxlength="10" readonly required>
+
         <label for="feeStudentId">Student ID:</label>
         <input type="text" id="feeStudentId" required>
 
-        <label for="totalFee">Total Fee:</label>
-        <input type="number" id="totalFee" required>
+        <label for="totalFee">Fee Amount:</label>
+        <input type="number" id="totalFee" min="0" step="0.01" required>
 
-        <label for="scholarshipAmount">Scholarship Amount:</label>
-        <input type="number" id="scholarshipAmount" value="0" required>
-
-        <label for="paidFee">Paid Fee:</label>
-        <input type="number" id="paidFee" value="0" required>
+        <label for="dueDate">Due Date:</label>
+        <input type="date" id="dueDate" required>
 
         <button type="submit">Add Fee Record</button>
     </form>
@@ -376,10 +393,10 @@
         <thead>
             <tr>
                 <th>Student ID</th>
-                <th>Total Fee</th>
-                <th>Scholarship</th>
+                <th>Fee Amount</th>
+                <th>Due Date</th>
                 <th>Paid Fee</th>
-                <th>Remaining Fee</th>
+                <th>Outstanding</th>
                 <th>Status</th>
                 <th>Action</th>
             </tr>
@@ -393,11 +410,202 @@
     </table>
 </div>
 
-    <script>
+    <!-- Payment Management -->
+    <div class="card">
+        <h2>Payment Management</h2>
+        <p>Record and view fee payments.</p>
 
+        <form id="paymentForm" onsubmit="addPayment(event)">
+            <label for="paymentId">Payment ID:</label>
+            <input type="text" id="paymentId" maxlength="10" readonly required>
+
+            <label for="paymentFeeId">Fee ID:</label>
+            <input type="text" id="paymentFeeId" maxlength="10" required>
+
+            <label for="paymentMethodId">Payment Method:</label>
+            <select id="paymentMethodId" required>
+                <option value="">Select Payment Method</option>
+                <option value="M01">UPI</option>
+                <option value="M02">Net Banking</option>
+                <option value="M03">Credit Card</option>
+                <option value="M04">Debit Card</option>
+            </select>
+
+            <label for="paymentDate">Payment Date:</label>
+            <input type="date" id="paymentDate" required>
+
+            <label for="amountPaid">Amount Paid:</label>
+            <input type="number" id="amountPaid" min="0" step="0.01" required>
+
+            <label for="transactionId">Transaction ID:</label>
+            <input type="text" id="transactionId" maxlength="30" readonly required>
+
+            <label for="paymentScholarshipId">Scholarship ID (optional):</label>
+            <input type="text" id="paymentScholarshipId" maxlength="10">
+
+            <button type="submit">Record Payment</button>
+        </form>
+
+        <p id="paymentMessage"></p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Payment ID</th>
+                    <th>Fee ID</th>
+                    <th>Student ID</th>
+                    <th>Student Name</th>
+                    <th>Method</th>
+                    <th>Payment Date</th>
+                    <th>Amount Paid</th>
+                    <th>Transaction ID</th>
+                </tr>
+            </thead>
+            <tbody id="paymentTableBody">
+                <tr>
+                    <td colspan="8">No payment records yet.</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+
+<!-- Disbursement Management -->
+<div class="card">
+    <h2>Disbursement Management</h2>
+    <p>Record and view scholarship disbursements.</p>
+
+    <form id="disbursementForm" onsubmit="addDisbursement(event)">
+        <label for="disbursementId">Disbursement ID:</label>
+        <input type="text" id="disbursementId" maxlength="10" readonly required>
+
+        <label for="disbursementScholarshipId">Scholarship ID:</label>
+        <select id="disbursementScholarshipId" required>
+            <option value="">Select Scholarship</option>
+        </select>
+
+        <label for="disbursementAccountNo">Account No:</label>
+        <input
+            type="text"
+            id="disbursementAccountNo"
+            maxlength="20"
+            placeholder="e.g. AC001"
+            required
+        >
+
+        <label for="disbursementDate">Disbursement Date:</label>
+        <input type="date" id="disbursementDate" required>
+
+        <label for="disbursementAmount">Amount:</label>
+        <input type="number" id="disbursementAmount" min="0" step="0.01" required>
+
+        <label for="disbursementMode">Disbursement Mode:</label>
+        <select id="disbursementMode" required>
+            <option value="">Select Mode</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Direct Transfer">Direct Transfer</option>
+        </select>
+
+        <button type="submit">Record Disbursement</button>
+    </form>
+
+    <p id="disbursementMessage"></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Disbursement ID</th>
+                <th>Scholarship ID</th>
+                <th>Student ID</th>
+                <th>Student Name</th>
+                <th>Account No</th>
+                <th>Bank</th>
+                <th>Amount</th>
+                <th>Mode</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+        <tbody id="disbursementTableBody">
+            <tr>
+                <td colspan="9">No disbursement records yet.</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+    <script>
+        const API_BASE = "http://127.0.0.1:5000";
 
         let students = [];
+        let scholarships = [];
         let feeRecords = [];
+
+        async function fetchAPI(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        ...(options.headers || {})
+                    },
+                    ...options
+                });
+
+                const contentType = response.headers.get("content-type") || "";
+                const data = contentType.includes("application/json")
+                    ? await response.json()
+                    : await response.text();
+
+                if (!response.ok) {
+                    const message = typeof data === "object" && data?.error
+                        ? data.error
+                        : "API request failed";
+                    throw new Error(message);
+                }
+
+                return data;
+            } catch (error) {
+                console.error("API Error:", error);
+                alert(error.message || "Unable to connect to the Flask API.");
+                throw error;
+            }
+        }
+
+        function formatCurrency(value) {
+            const number = Number(value || 0);
+            return `₹${number.toLocaleString("en-IN", {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            })}`;
+        }
+
+        function formatDate(value) {
+            if (!value) return "-";
+            const text = String(value);
+            if (/^\d{4}-\d{2}-\d{2}/.test(text)) return text.slice(0, 10);
+            const date = new Date(value);
+            return Number.isNaN(date.getTime()) ? text : date.toLocaleDateString("en-IN");
+        }
+
+        function todayISO() {
+            const now = new Date();
+            const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+            return local.toISOString().slice(0, 10);
+        }
+
+        function generateFeeId() {
+            const suffix = Date.now().toString(36).toUpperCase().replace(/[^A-Z0-9]/g, "").slice(-8);
+            return `F${suffix}`.slice(0, 10);
+        }
+
+        function generatePaymentId() {
+            const suffix = Date.now().toString(36).toUpperCase().replace(/[^A-Z0-9]/g, "").slice(-7);
+            return `PAY${suffix}`.slice(0, 10);
+        }
+
+        function generateTransactionId() {
+            return `TXN${Date.now()}`;
+        }
+
         function showStudentForm() {
             document.getElementById("studentForm").style.display = "block";
         }
@@ -406,401 +614,749 @@
             document.getElementById("studentForm").style.display = "none";
         }
 
-        function addStudent(event) {
+        async function loadDashboard() {
+            try {
+                const data = await fetchAPI("/api/dashboard");
 
+                document.getElementById("totalStudents").textContent = data.total_students ?? 0;
+                document.getElementById("totalScholarshipStudents").textContent = data.total_scholarships ?? 0;
+                document.getElementById("totalFeeRecords").textContent = formatCurrency(data.total_fees);
+                document.getElementById("pendingPayments").textContent = formatCurrency(data.total_outstanding);
+
+                document.getElementById("applicationSummary").textContent =
+                    `Approved: ${data.approved_applications ?? 0} | Pending: ${data.pending_applications ?? 0}`;
+                document.getElementById("scholarshipAmountSummary").textContent =
+                    `Amount: ${formatCurrency(data.total_scholarship_amount)}`;
+                document.getElementById("paidFeeSummary").textContent =
+                    `Paid: ${formatCurrency(data.total_paid)}`;
+            } catch (error) {
+                console.error("Failed to load dashboard:", error);
+            }
+        }
+
+        async function loadScholarships() {
+            try {
+                scholarships = await fetchAPI("/api/scholarships");
+
+                const scholarshipTable = document.getElementById("scholarshipTableBody");
+                scholarshipTable.innerHTML = "";
+
+                if (!Array.isArray(scholarships) || scholarships.length === 0) {
+                    scholarshipTable.innerHTML = `
+                        <tr><td colspan="5">No scholarship records yet.</td></tr>
+                    `;
+                } else {
+                    scholarships.forEach((scholarship) => {
+                        scholarshipTable.innerHTML += `
+                            <tr>
+                                <td>${scholarship.SCHOLARSHIPID ?? "-"}</td>
+                                <td>${scholarship.STUDENTID ?? "-"}</td>
+                                <td>${scholarship.STUDENTNAME ?? "-"}</td>
+                                <td>${scholarship.SCHOLARSHIPTYPE ?? "-"}</td>
+                                <td>${formatCurrency(scholarship.AMOUNT)}</td>
+                            </tr>
+                        `;
+                    });
+                }
+
+                updateStudentScholarships();
+                updateScholarshipSummary();
+                populateDisbursementScholarships();
+            } catch (error) {
+                console.error("Failed to load scholarships:", error);
+            }
+        }
+
+        function updateStudentScholarships() {
+            const scholarshipMap = new Map();
+
+            scholarships.forEach((scholarship) => {
+                const studentId = scholarship.STUDENTID;
+                if (studentId) {
+                    scholarshipMap.set(String(studentId), canonicalScholarshipType(scholarship.SCHOLARSHIPTYPE));
+                }
+            });
+
+            students = students.map((student) => ({
+                ...student,
+                scholarshipType: scholarshipMap.get(String(student.id)) || "No Scholarship"
+            }));
+
+            displayStudents(false);
+        }
+
+        function canonicalScholarshipType(type) {
+            const key = String(type || "").toLowerCase().replace(/[^a-z]/g, "");
+
+            if (key === "meritscholarship") return "Merit Scholarship";
+            if (key === "needbasedscholarship") return "Need-Based Scholarship";
+            if (key === "sportsscholarship") return "Sports Scholarship";
+
+            return String(type || "No Scholarship");
+        }
+
+        function updateScholarshipSummary() {
+            const counts = {
+                "Merit Scholarship": 0,
+                "Need-Based Scholarship": 0,
+                "Sports Scholarship": 0
+            };
+
+            scholarships.forEach((scholarship) => {
+                const type = canonicalScholarshipType(scholarship.SCHOLARSHIPTYPE);
+                if (Object.prototype.hasOwnProperty.call(counts, type)) {
+                    counts[type] += 1;
+                }
+            });
+
+            document.getElementById("meritCount").textContent = counts["Merit Scholarship"];
+            document.getElementById("needBasedCount").textContent = counts["Need-Based Scholarship"];
+            document.getElementById("sportsCount").textContent = counts["Sports Scholarship"];
+        }
+
+        function showScholarshipMessage() {
+            document.getElementById("scholarshipMessage").textContent =
+                scholarships.length ? "Scholarships loaded from the Flask API." : "No scholarship records found.";
+            document.getElementById("scholarshipTable").style.display = "table";
+        }
+
+        function showScholarshipSummary() {
+            const details = document.getElementById("scholarshipSummaryDetails");
+
+            if (details.style.display === "none" || details.style.display === "") {
+                details.style.display = "block";
+                details.scrollIntoView({ behavior: "smooth", block: "start" });
+            } else {
+                details.style.display = "none";
+            }
+        }
+
+        function generateApplicationId() {
+            const suffix = Date.now()
+                .toString(36)
+                .toUpperCase()
+                .replace(/[^A-Z0-9]/g, "")
+                .slice(-7);
+
+            return `APP${suffix}`.slice(0, 10);
+        }
+
+        async function loadApplications() {
+            try {
+                const data = await fetchAPI("/api/applications");
+                const applications = Array.isArray(data) ? data : [];
+                const tableBody = document.getElementById("applicationTableBody");
+
+                tableBody.innerHTML = "";
+
+                if (applications.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="6">No applications yet.</td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                applications.forEach((application) => {
+                    const applicationId = String(application.APPLICATIONID ?? "");
+                    const status = application.APPLICATIONSTATUS ?? "-";
+
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${application.APPLICATIONID ?? "-"}</td>
+                        <td>${application.STUDENTID ?? "-"}</td>
+                        <td>${application.STUDENTNAME ?? "-"}</td>
+                        <td>${formatDate(application.APPLICATIONDATE)}</td>
+                        <td>${status}</td>
+                        <td>
+                            <button type="button"
+                                onclick="updateApplicationStatus('${applicationId.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}', 'Approved')">
+                                Approve
+                            </button>
+                            <button type="button"
+                                class="delete-btn"
+                                onclick="updateApplicationStatus('${applicationId.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}', 'Rejected')">
+                                Reject
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error("Failed to load applications:", error);
+            }
+        }
+
+        async function addApplication(event) {
+            event.preventDefault();
+
+            const applicationId = document.getElementById("applicationId").value.trim();
+            const studentId = document.getElementById("applicationStudentId").value.trim();
+            const applicationDate = document.getElementById("applicationDate").value;
+
+            if (!studentId) {
+                alert("Student ID is required.");
+                return;
+            }
+
+            if (!applicationDate) {
+                alert("Application date is required.");
+                return;
+            }
+
+            try {
+                const result = await fetchAPI("/api/applications", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        application_id: applicationId,
+                        student_id: studentId,
+                        application_date: applicationDate
+                    })
+                });
+
+                document.getElementById("applicationMessage").textContent =
+                    result.message || "Scholarship application submitted successfully.";
+
+                document.getElementById("applicationForm").reset();
+                document.getElementById("applicationId").value = generateApplicationId();
+                document.getElementById("applicationDate").value = todayISO();
+
+                await Promise.all([
+                    loadApplications(),
+                    loadDashboard()
+                ]);
+            } catch (error) {
+                console.error("Failed to submit application:", error);
+            }
+        }
+
+        async function updateApplicationStatus(applicationId, status) {
+            if (!applicationId) return;
+
+            try {
+                const result = await fetchAPI(
+                    `/api/applications/${encodeURIComponent(applicationId)}/status`,
+                    {
+                        method: "PUT",
+                        body: JSON.stringify({ status })
+                    }
+                );
+
+                document.getElementById("applicationMessage").textContent =
+                    result.message || "Application status updated successfully.";
+
+                await Promise.all([
+                    loadApplications(),
+                    loadScholarships(),
+                    loadDashboard()
+                ]);
+            } catch (error) {
+                console.error("Failed to update application status:", error);
+            }
+        }
+
+        async function loadStudents() {
+            try {
+                const data = await fetchAPI("/api/students");
+
+                students = (Array.isArray(data) ? data : []).map((student) => ({
+                    id: student.STUDENTID,
+                    name: student.STUDENTNAME,
+                    phone: student.PHONE,
+                    programId: student.PROGRAMNAME,
+                    scholarshipType: "No Scholarship"
+                }));
+
+                updateStudentScholarships();
+            } catch (error) {
+                console.error("Failed to load students:", error);
+            }
+        }
+
+        async function addStudent(event) {
             event.preventDefault();
 
             const student = {
-    id: document.getElementById("studentId").value.trim(),
-    name: document.getElementById("studentName").value,
-    phone: document.getElementById("phone").value,
-    programId: document.getElementById("programId").value,
-    scholarshipType: document.getElementById("scholarshipType").value
-};
+                student_id: document.getElementById("studentId").value.trim(),
+                student_name: document.getElementById("studentName").value.trim(),
+                phone: document.getElementById("phone").value.trim(),
+                program_id: document.getElementById("programId").value.trim()
+            };
 
-            students.push(student);
+            try {
+                const result = await fetchAPI("/api/students", {
+                    method: "POST",
+                    body: JSON.stringify(student)
+                });
 
-            displayStudents();
+                alert(result.message || "Student added successfully.");
+                document.querySelector("#studentForm form").reset();
+                hideStudentForm();
 
-            document.querySelector("form").reset();
-
-            hideStudentForm();
+                await loadStudents();
+                await loadDashboard();
+            } catch (error) {
+                console.error("Failed to add student:", error);
+            }
         }
 
-        function displayStudents() {
-
+        function displayStudents(refreshDashboard = true) {
             const tableBody = document.getElementById("studentTableBody");
-
             tableBody.innerHTML = "";
 
             if (students.length === 0) {
-
                 tableBody.innerHTML = `
                     <tr>
-                        <td colspan="6">
-                            No student records yet.
-                        </td>
+                        <td colspan="6">No student records yet.</td>
                     </tr>
                 `;
-
+                if (refreshDashboard) loadDashboard();
                 return;
             }
 
             students.forEach(function(student, index) {
-
                 const row = document.createElement("tr");
 
                 row.innerHTML = `
-                    <td>${student.id}</td>
-                    <td>${student.name}</td>
-                    <td>${student.phone}</td>
-                    <td>${student.programId}</td>
+                    <td>${student.id ?? "-"}</td>
+                    <td>${student.name ?? "-"}</td>
+                    <td>${student.phone ?? "-"}</td>
+                    <td>${student.programId ?? "-"}</td>
                     <td>${student.scholarshipType || "No Scholarship"}</td>
                     <td>
-                        <button onclick="editStudent(${index})">Edit</button>
-                        <button class="delete-btn" onclick="deleteStudent(${index})">
-                            Delete
-                        </button>
+                        <button type="button" onclick="viewStudent(${index})">View</button>
                     </td>
                 `;
 
                 tableBody.appendChild(row);
-
             });
-            updateDashboard();
+
+            if (refreshDashboard) loadDashboard();
         }
 
-        function deleteStudent(index) {
+        async function viewStudent(index) {
+            const student = students[index];
+            if (!student?.id) return;
 
-            students.splice(index, 1);
+            try {
+                const studentId = encodeURIComponent(student.id);
+                const [data, studentScholarships, studentFees, studentPayments] = await Promise.all([
+                    fetchAPI(`/api/students/${studentId}`),
+                    fetchAPI(`/api/students/${studentId}/scholarships`),
+                    fetchAPI(`/api/students/${studentId}/fees`),
+                    fetchAPI(`/api/students/${studentId}/payments`)
+                ]);
 
-            displayStudents();
+                const scholarshipsCount = Array.isArray(studentScholarships) ? studentScholarships.length : 0;
+                const feesCount = Array.isArray(studentFees) ? studentFees.length : 0;
+                const paymentsCount = Array.isArray(studentPayments) ? studentPayments.length : 0;
 
+                alert(
+                    `Student ID: ${data.STUDENTID ?? student.id}\n` +
+                    `Name: ${data.STUDENTNAME ?? student.name}\n` +
+                    `Phone: ${data.PHONE ?? student.phone}\n` +
+                    `Program: ${data.PROGRAMNAME ?? student.programId}\n\n` +
+                    `Scholarship Records: ${scholarshipsCount}\n` +
+                    `Fee Records: ${feesCount}\n` +
+                    `Payment Records: ${paymentsCount}`
+                );
+            } catch (error) {
+                console.error("Failed to load student details:", error);
+            }
         }
-    function editStudent(index) {
-    const student = students[index];
 
-    const row = document.querySelectorAll("#studentTableBody tr")[index];
+        function searchStudents() {
+            const searchText = document.getElementById("searchStudent").value.toLowerCase().trim();
+            const filteredStudents = students.filter((student) =>
+                String(student.id || "").toLowerCase().includes(searchText) ||
+                String(student.name || "").toLowerCase().includes(searchText)
+            );
 
-   row.innerHTML = `
-    <td>${student.id}</td>
+            const tableBody = document.getElementById("studentTableBody");
+            tableBody.innerHTML = "";
 
-    <td>
-        <input type="text" id="editName${index}" value="${student.name}">
-    </td>
+            filteredStudents.forEach((student) => {
+                const originalIndex = students.indexOf(student);
+                tableBody.innerHTML += `
+                    <tr>
+                        <td>${student.id ?? "-"}</td>
+                        <td>${student.name ?? "-"}</td>
+                        <td>${student.phone ?? "-"}</td>
+                        <td>${student.programId ?? "-"}</td>
+                        <td>${student.scholarshipType || "No Scholarship"}</td>
+                        <td><button type="button" onclick="viewStudent(${originalIndex})">View</button></td>
+                    </tr>
+                `;
+            });
 
-    <td>
-        <input type="text" id="editPhone${index}" value="${student.phone}">
-    </td>
+            if (filteredStudents.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="6">No matching student records.</td></tr>`;
+            }
+        }
 
-    <td>
-        <input type="text" id="editProgram${index}" value="${student.programId}">
-    </td>
+        async function loadFees() {
+            try {
+                const data = await fetchAPI("/api/fees");
+                feeRecords = Array.isArray(data) ? data : [];
+                displayFeeRecords();
+            } catch (error) {
+                console.error("Failed to load fees:", error);
+            }
+        }
 
-    <td>
-        <select id="editScholarship${index}">
-            <option value="No Scholarship"
-                ${student.scholarshipType === "No Scholarship" ? "selected" : ""}>
-                No Scholarship
-            </option>
+        function displayFeeRecords() {
+            const tableBody = document.getElementById("feeTableBody");
+            tableBody.innerHTML = "";
 
-            <option value="Merit Scholarship"
-                ${student.scholarshipType === "Merit Scholarship" ? "selected" : ""}>
-                Merit Scholarship
-            </option>
+            if (feeRecords.length === 0) {
+                tableBody.innerHTML = `
+                    <tr><td colspan="7">No fee records yet.</td></tr>
+                `;
+                return;
+            }
 
-            <option value="Need-Based Scholarship"
-                ${student.scholarshipType === "Need-Based Scholarship" ? "selected" : ""}>
-                Need-Based Scholarship
-            </option>
+            feeRecords.forEach((record) => {
+                const outstanding = Number(record.OUTSTANDINGAMOUNT || 0);
+                const paid = Number(record.AMOUNTPAID || 0);
+                const fee = Number(record.FEEAMOUNT || 0);
+                const status = outstanding === 0 ? "Paid" : "Pending";
 
-            <option value="Sports Scholarship"
-                ${student.scholarshipType === "Sports Scholarship" ? "selected" : ""}>
-                Sports Scholarship
-            </option>
-        </select>
-    </td>
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${record.STUDENTID ?? "-"}</td>
+                    <td>${formatCurrency(fee)}</td>
+                    <td>${formatDate(record.DUEDATE)}</td>
+                    <td>${formatCurrency(paid)}</td>
+                    <td>${formatCurrency(outstanding)}</td>
+                    <td>${status}</td>
+                    <td>
+                        <button type="button" onclick="viewFee('${String(record.FEEID ?? "").replace(/'/g, "\\'")}')">View</button>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
 
-    <td>
-        <button onclick="saveEdit(${index})">Save</button>
-        <button class="delete-btn" onclick="displayStudents()">Cancel</button>
-    </td>
-`;
-}
-function saveEdit(index) {
-    const name = document.getElementById(`editName${index}`).value;
-    const phone = document.getElementById(`editPhone${index}`).value;
-    const programId = document.getElementById(`editProgram${index}`).value;
-    const scholarshipType =
-        document.getElementById(`editScholarship${index}`).value;
+        function viewFee(feeId) {
+            const record = feeRecords.find((fee) => String(fee.FEEID) === String(feeId));
+            if (!record) return;
 
-    students[index].name = name;
-    students[index].phone = phone;
-    students[index].programId = programId;
-    students[index].scholarshipType = scholarshipType;
+            alert(
+                `Fee ID: ${record.FEEID}\n` +
+                `Student: ${record.STUDENTID} - ${record.STUDENTNAME}\n` +
+                `Fee Amount: ${formatCurrency(record.FEEAMOUNT)}\n` +
+                `Due Date: ${formatDate(record.DUEDATE)}\n` +
+                `Paid: ${formatCurrency(record.AMOUNTPAID)}\n` +
+                `Outstanding: ${formatCurrency(record.OUTSTANDINGAMOUNT)}`
+            );
+        }
 
-    displayStudents();
-}
-function searchStudents() {
-    const searchText = document
-        .getElementById("searchStudent")
-        .value
-        .toLowerCase();
+        async function addFeeRecord(event) {
+            event.preventDefault();
 
-    const filteredStudents = students.filter(student =>
-        student.id.toLowerCase().includes(searchText) ||
-        student.name.toLowerCase().includes(searchText)
-    );
+            const feeId = document.getElementById("feeId").value.trim() || generateFeeId();
+            const studentId = document.getElementById("feeStudentId").value.trim();
+            const feeAmount = Number(document.getElementById("totalFee").value);
+            const dueDate = document.getElementById("dueDate").value;
 
-    const tableBody = document.getElementById("studentTableBody");
+            if (!studentId) {
+                alert("Student ID is required.");
+                return;
+            }
 
-    tableBody.innerHTML = "";
+            if (!Number.isFinite(feeAmount) || feeAmount < 0) {
+                alert("Fee amount cannot be negative and must be a valid number.");
+                return;
+            }
 
-    filteredStudents.forEach(student => {
-        const originalIndex = students.indexOf(student);
+            if (!dueDate) {
+                alert("Due date is required.");
+                return;
+            }
 
-        tableBody.innerHTML += `
-            <tr>
-                <td>${student.id}</td>
-                <td>${student.name}</td>
-                <td>${student.phone}</td>
-                <td>${student.programId}</td>
-                <td>${student.scholarshipType || "No Scholarship"}</td>
-                <td>
-                    <button onclick="editStudent(${originalIndex})">Edit</button>
-                    <button class="delete-btn" onclick="deleteStudent(${originalIndex})">
-                        Delete
-                    </button>
-                </td>
-            </tr>
-        `;
-    });
-}
-function showScholarshipMessage() {
-    document.getElementById("scholarshipMessage").textContent =
-        "Available scholarships:";
+            try {
+                const result = await fetchAPI("/api/fees", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        fee_id: feeId,
+                        student_id: studentId,
+                        fee_amount: feeAmount,
+                        due_date: dueDate
+                    })
+                });
 
-    document.getElementById("scholarshipTable").style.display = "table";
-}
-function updateDashboard() {
-    document.getElementById("totalStudents").textContent = students.length;
+                alert(result.message || "Student fee created successfully.");
+                document.getElementById("feeForm").reset();
+                document.getElementById("feeId").value = generateFeeId();
+                document.getElementById("dueDate").value = todayISO();
 
-    document.getElementById("totalFeeRecords").textContent = students.length;
+                await loadFees();
+                await loadDashboard();
+            } catch (error) {
+                console.error("Failed to add fee:", error);
+            }
+        }
 
-    const pendingPayments = feeRecords.filter(function(record) {
-  return record.remainingFee > 0;
-}).length;
+        async function loadPayments() {
+            try {
+                const data = await fetchAPI("/api/payments");
+                const payments = Array.isArray(data) ? data : [];
+                const tableBody = document.getElementById("paymentTableBody");
+                tableBody.innerHTML = "";
 
-document.getElementById("pendingPayments").textContent = pendingPayments;
-    const scholarshipStudents = students.filter(student =>
-        student.scholarshipType &&
-        student.scholarshipType !== "No Scholarship"
-    );
+                if (payments.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr><td colspan="8">No payment records yet.</td></tr>
+                    `;
+                    return;
+                }
 
-    document.getElementById("totalScholarshipStudents").textContent =
-        scholarshipStudents.length;
+                payments.forEach((payment) => {
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td>${payment.PAYMENTID ?? "-"}</td>
+                            <td>${payment.FEEID ?? "-"}</td>
+                            <td>${payment.STUDENTID ?? "-"}</td>
+                            <td>${payment.STUDENTNAME ?? "-"}</td>
+                            <td>${payment.METHODNAME ?? "-"}</td>
+                            <td>${formatDate(payment.PAYMENTDATE)}</td>
+                            <td>${formatCurrency(payment.AMOUNTPAID)}</td>
+                            <td>${payment.TRANSACTIONID ?? "-"}</td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error("Failed to load payments:", error);
+            }
+        }
 
-    document.getElementById("meritCount").textContent =
-        students.filter(student =>
-            student.scholarshipType === "Merit Scholarship"
-        ).length;
+        async function addPayment(event) {
+            event.preventDefault();
 
-    document.getElementById("needBasedCount").textContent =
-        students.filter(student =>
-            student.scholarshipType === "Need-Based Scholarship"
-        ).length;
+            const paymentId = document.getElementById("paymentId").value.trim() || generatePaymentId();
+            const feeId = document.getElementById("paymentFeeId").value.trim();
+            const methodId = document.getElementById("paymentMethodId").value;
+            const paymentDate = document.getElementById("paymentDate").value;
+            const amountPaid = Number(document.getElementById("amountPaid").value);
+            const transactionId = document.getElementById("transactionId").value.trim() || generateTransactionId();
+            const scholarshipId = document.getElementById("paymentScholarshipId").value.trim();
 
-    document.getElementById("sportsCount").textContent =
-        students.filter(student =>
-            student.scholarshipType === "Sports Scholarship"
-        ).length;
-}
-function showScholarshipSummary() {
-  const details = document.getElementById("scholarshipSummaryDetails");
+            if (!feeId) {
+                alert("Fee ID is required.");
+                return;
+            }
 
-  if (details.style.display === "none" || details.style.display === "") {
-    details.style.display = "block";
+            if (!methodId) {
+                alert("Please select a payment method.");
+                return;
+            }
 
-    details.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-  } else {
-    details.style.display = "none";
-  }
-}
-function addFeeRecord(event) {
-  event.preventDefault();
+            if (!paymentDate) {
+                alert("Payment date is required.");
+                return;
+            }
 
-  const studentId = document.getElementById("feeStudentId").value.trim();
+            if (!Number.isFinite(amountPaid) || amountPaid < 0) {
+                alert("Amount paid must be a valid non-negative number.");
+                return;
+            }
 
-  const totalFee = Number(document.getElementById("totalFee").value);
-  const scholarshipAmount = Number(
-    document.getElementById("scholarshipAmount").value
-  );
-  const paidFee = Number(document.getElementById("paidFee").value);
+            try {
+                const payload = {
+                    payment_id: paymentId,
+                    fee_id: feeId,
+                    method_id: methodId,
+                    payment_date: paymentDate,
+                    amount_paid: amountPaid,
+                    transaction_id: transactionId
+                };
 
-  // Check whether the student exists
-const studentExists = students.some(function(student) {
-  return String(student.id).trim() === studentId;
-});
-  if (!studentExists) {
-    alert("Error: This Student ID does not exist. Please add the student first.");
-    return;
-  }
+                if (scholarshipId) {
+                    payload.scholarship_id = scholarshipId;
+                }
 
-  // Validate fee values
-  if (totalFee < 0 || scholarshipAmount < 0 || paidFee < 0) {
-    alert("Fee amounts cannot be negative.");
-    return;
-  }
+                const result = await fetchAPI("/api/payments", {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
 
-  if (scholarshipAmount > totalFee) {
-    alert("Scholarship amount cannot be greater than the total fee.");
-    return;
-  }
+                document.getElementById("paymentMessage").textContent =
+                    result.message || "Fee payment recorded successfully.";
 
-  const remainingFee = totalFee - scholarshipAmount - paidFee;
+                document.getElementById("paymentForm").reset();
+                document.getElementById("paymentId").value = generatePaymentId();
+                document.getElementById("transactionId").value = generateTransactionId();
+                document.getElementById("paymentDate").value = todayISO();
 
-  if (remainingFee < 0) {
-    alert("Paid fee and scholarship cannot be greater than the total fee.");
-    return;
-  }
+                await Promise.all([
+                    loadPayments(),
+                    loadFees(),
+                    loadDashboard()
+                ]);
+            } catch (error) {
+                console.error("Failed to add payment:", error);
+            }
+        }
 
-  const status = remainingFee === 0 ? "Paid" : "Pending";
 
-  const feeRecord = {
-    studentId: studentId,
-    totalFee: totalFee,
-    scholarshipAmount: scholarshipAmount,
-    paidFee: paidFee,
-    remainingFee: remainingFee,
-    status: status
-  };
-  const alreadyExists = feeRecords.some(function(record) {
-  return record.studentId === studentId;
-});
+        function generateDisbursementId() {
+            const suffix = Date.now()
+                .toString(36)
+                .toUpperCase()
+                .replace(/[^A-Z0-9]/g, "")
+                .slice(-7);
+            return `DIS${suffix}`.slice(0, 10);
+        }
 
-if (alreadyExists) {
-  alert("A fee record already exists for this Student ID.");
-  return;
-}
-  feeRecords.push(feeRecord);
+        function populateDisbursementScholarships() {
+            const select = document.getElementById("disbursementScholarshipId");
+            if (!select) return;
 
-  displayFeeRecords();
-  updateDashboard();
+            const currentValue = select.value;
+            select.innerHTML = '<option value="">Select Scholarship</option>';
 
-  document.getElementById("feeForm").reset();
+            scholarships.forEach((scholarship) => {
+                const option = document.createElement("option");
+                option.value = scholarship.SCHOLARSHIPID ?? "";
+                option.textContent = `${scholarship.SCHOLARSHIPID ?? "-"} - ${scholarship.SCHOLARSHIPTYPE ?? "Scholarship"}`;
+                select.appendChild(option);
+            });
 
-  alert("Fee record added successfully!");
-}
-function displayFeeRecords() {
-  const tableBody = document.getElementById("feeTableBody");
+            if (currentValue && scholarships.some((s) => String(s.SCHOLARSHIPID) === currentValue)) {
+                select.value = currentValue;
+            }
+        }
 
-  tableBody.innerHTML = "";
+        async function loadDisbursements() {
+            try {
+                const data = await fetchAPI("/api/disbursements");
+                const disbursements = Array.isArray(data) ? data : [];
+                const tableBody = document.getElementById("disbursementTableBody");
 
-  if (feeRecords.length === 0) {
-    tableBody.innerHTML = `
-      <tr>
-        <td colspan="6">No fee records yet.</td>
-      </tr>
-    `;
-    return;
-  }
+                tableBody.innerHTML = "";
 
-  feeRecords.forEach((record, index) => {
-  const row = document.createElement("tr");
+                if (disbursements.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr><td colspan="9">No disbursement records yet.</td></tr>
+                    `;
+                    return;
+                }
 
-    row.innerHTML = `
-        <td>${record.studentId}</td>
-        <td>₹${record.totalFee}</td>
-        <td>₹${record.scholarshipAmount}</td>
-        <td>₹${record.paidFee}</td>
-        <td>₹${record.remainingFee}</td>
-        <td>${record.status}</td>
-        <td>
-<button type="button" onclick="editFeeRecord(${index})">
-  Edit
-</button>        </td>
-        `;
+                disbursements.forEach((disbursement) => {
+                    tableBody.innerHTML += `
+                        <tr>
+                            <td>${disbursement.DISBURSEMENTID ?? "-"}</td>
+                            <td>${disbursement.SCHOLARSHIPID ?? "-"}</td>
+                            <td>${disbursement.STUDENTID ?? "-"}</td>
+                            <td>${disbursement.STUDENTNAME ?? "-"}</td>
+                            <td>${disbursement.ACCOUNTNO ?? "-"}</td>
+                            <td>${disbursement.BANKNAME ?? "-"}</td>
+                            <td>${formatCurrency(disbursement.AMOUNT)}</td>
+                            <td>${disbursement.DISBURSEMENTMODE ?? "-"}</td>
+                            <td>${formatDate(disbursement.DISBURSEMENTDATE)}</td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error("Failed to load disbursements:", error);
+            }
+        }
 
-    tableBody.appendChild(row);
-  });
-}
-function editFeeRecord(index) {
-  const record = feeRecords[index];
-  const row = document.querySelectorAll("#feeTableBody tr")[index];
+        async function addDisbursement(event) {
+            event.preventDefault();
 
-  row.innerHTML = `
-    <td>${record.studentId}</td>
+            const disbursementId =
+                document.getElementById("disbursementId").value.trim() || generateDisbursementId();
+            const scholarshipId =
+                document.getElementById("disbursementScholarshipId").value;
+            const accountNo =
+                document.getElementById("disbursementAccountNo").value.trim();
+            const disbursementDate =
+                document.getElementById("disbursementDate").value;
+            const amount = Number(
+                document.getElementById("disbursementAmount").value
+            );
+            const disbursementMode =
+                document.getElementById("disbursementMode").value;
 
-    <td>
-      <input type="number" id="editTotalFee${index}" value="${record.totalFee}">
-    </td>
+            if (!scholarshipId) {
+                alert("Scholarship ID is required.");
+                return;
+            }
 
-    <td>
-      <input type="number" id="editScholarshipAmount${index}" value="${record.scholarshipAmount}">
-    </td>
+            if (!accountNo) {
+                alert("Account number is required.");
+                return;
+            }
 
-    <td>
-      <input type="number" id="editPaidFee${index}" value="${record.paidFee}">
-    </td>
+            if (!disbursementDate) {
+                alert("Disbursement date is required.");
+                return;
+            }
 
-    <td>${record.remainingFee}</td>
+            if (!Number.isFinite(amount) || amount < 0) {
+                alert("Amount must be a valid non-negative number.");
+                return;
+            }
 
-    <td>${record.status}</td>
+            if (!disbursementMode) {
+                alert("Please select a disbursement mode.");
+                return;
+            }
 
-    <td>
-      <button type="button" onclick="saveFeeEdit(${index})">Save</button>
-      <button type="button" class="delete-btn" onclick="displayFeeRecords()">Cancel</button>
-    </td>
-  `;
-}
-function saveFeeEdit(index) {
-  const newTotalFee = Number(
-    document.getElementById(`editTotalFee${index}`).value
-  );
+            try {
+                const result = await fetchAPI("/api/disbursements", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        disbursement_id: disbursementId,
+                        scholarship_id: scholarshipId,
+                        account_no: accountNo,
+                        disbursement_date: disbursementDate,
+                        amount: amount,
+                        disbursement_mode: disbursementMode
+                    })
+                });
 
-  const newScholarshipAmount = Number(
-    document.getElementById(`editScholarshipAmount${index}`).value
-  );
+                document.getElementById("disbursementMessage").textContent =
+                    result.message || "Disbursement recorded successfully.";
 
-  const newPaidFee = Number(
-    document.getElementById(`editPaidFee${index}`).value
-  );
+                document.getElementById("disbursementForm").reset();
+                document.getElementById("disbursementId").value =
+                    generateDisbursementId();
+                document.getElementById("disbursementDate").value = todayISO();
 
-  if (
-    newTotalFee < 0 ||
-    newScholarshipAmount < 0 ||
-    newPaidFee < 0
-  ) {
-    alert("Fee amounts cannot be negative.");
-    return;
-  }
+                await loadDisbursements();
+            } catch (error) {
+                console.error("Failed to add disbursement:", error);
+            }
+        }
 
-  if (newScholarshipAmount > newTotalFee) {
-    alert("Scholarship cannot be greater than the total fee.");
-    return;
-  }
+        document.addEventListener("DOMContentLoaded", async function() {
+            document.getElementById("feeId").value = generateFeeId();
+            document.getElementById("dueDate").value = todayISO();
+            document.getElementById("paymentId").value = generatePaymentId();
+            document.getElementById("paymentDate").value = todayISO();
+            document.getElementById("transactionId").value = generateTransactionId();
+            document.getElementById("applicationId").value = generateApplicationId();
+            document.getElementById("disbursementId").value = generateDisbursementId();
+            document.getElementById("disbursementDate").value = todayISO();
+            document.getElementById("applicationDate").value = todayISO();
 
-  const newRemainingFee =
-    newTotalFee - newScholarshipAmount - newPaidFee;
-
-  if (newRemainingFee < 0) {
-    alert("Paid fee and scholarship cannot exceed the total fee.");
-    return;
-  }
-
-  feeRecords[index].totalFee = newTotalFee;
-  feeRecords[index].scholarshipAmount = newScholarshipAmount;
-  feeRecords[index].paidFee = newPaidFee;
-  feeRecords[index].remainingFee = newRemainingFee;
-  feeRecords[index].status =
-    newRemainingFee === 0 ? "Paid" : "Pending";
-
-  displayFeeRecords();
-  updateDashboard();
-}
+            try {
+                await Promise.all([
+                    loadDashboard(),
+                    loadScholarships(),
+                    loadStudents(),
+                    loadFees(),
+                    loadPayments(),
+                    loadApplications(),
+                    loadDisbursements()
+                ]);
+            } catch (error) {
+                console.error("Initial data loading failed:", error);
+            }
+        });
     </script>
 
 </body>
